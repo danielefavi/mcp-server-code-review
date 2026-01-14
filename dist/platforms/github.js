@@ -1,9 +1,23 @@
 import { Octokit } from 'octokit';
+/**
+ * GitHub implementation of the GitPlatform interface.
+ * Uses the Octokit library to interact with the GitHub API.
+ */
 export class GitHubAdapter {
     client;
+    /**
+     * Creates a new instance of GitHubAdapter.
+     * @param token The GitHub Personal Access Token.
+     */
     constructor(token) {
         this.client = new Octokit({ auth: token });
     }
+    /**
+     * Parses a repository ID string into owner and repo name.
+     * @param repoId The repository ID in "owner/repo" format.
+     * @returns An object containing owner and repo strings.
+     * @throws Error if the format is invalid.
+     */
     parseRepoId(repoId) {
         const [owner, repo] = repoId.split('/');
         if (!owner || !repo) {
@@ -11,6 +25,12 @@ export class GitHubAdapter {
         }
         return { owner, repo };
     }
+    /**
+     * Lists pull requests for a given repository.
+     * @param repoId The repository name in "owner/repo" format.
+     * @param status The state to filter by ('opened', 'closed', 'merged', 'all'). Defaults to 'opened'.
+     * @returns A list of simplified pull request details.
+     */
     async listMergeRequests(repoId, status = 'opened') {
         const { owner, repo } = this.parseRepoId(repoId);
         // GitHub uses 'open', 'closed', 'all'. Map 'opened' to 'open', 'merged' is a subset of closed but we can filter.
@@ -40,6 +60,12 @@ export class GitHubAdapter {
             webUrl: pr.html_url,
         }));
     }
+    /**
+     * Retrieves full details for a specific pull request.
+     * @param repoId The repository name in "owner/repo" format.
+     * @param mrId The pull request number.
+     * @returns The details of the pull request.
+     */
     async getMergeRequestDetails(repoId, mrId) {
         const { owner, repo } = this.parseRepoId(repoId);
         const { data: pr } = await this.client.rest.pulls.get({
@@ -57,6 +83,12 @@ export class GitHubAdapter {
             webUrl: pr.html_url,
         };
     }
+    /**
+     * Retrieves the diffs (changes) for a specific pull request.
+     * @param repoId The repository name in "owner/repo" format.
+     * @param mrId The pull request number.
+     * @returns A list of file differences.
+     */
     async getMergeRequestDiff(repoId, mrId) {
         const { owner, repo } = this.parseRepoId(repoId);
         const { data: files } = await this.client.rest.pulls.listFiles({
@@ -73,6 +105,13 @@ export class GitHubAdapter {
             renamedFile: file.status === 'renamed',
         }));
     }
+    /**
+     * Reads a file's content from the repository.
+     * @param repoId The repository name in "owner/repo" format.
+     * @param filePath The path to the file.
+     * @param ref The branch, tag, or commit SHA. Defaults to 'main'.
+     * @returns The decoded file content as a string.
+     */
     async readFileContent(repoId, filePath, ref) {
         const { owner, repo } = this.parseRepoId(repoId);
         const { data: file } = await this.client.rest.repos.getContent({
@@ -86,6 +125,11 @@ export class GitHubAdapter {
         }
         throw new Error(`File not found or is a directory: ${filePath}`);
     }
+    /**
+     * Fetches the README and a detected manifest file (e.g. package.json) for context.
+     * @param repoId The repository name in "owner/repo" format.
+     * @returns An object containing the readme and manifest content if found.
+     */
     async getProjectMetadata(repoId) {
         let readme;
         let manifest;
