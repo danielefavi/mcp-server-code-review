@@ -1,10 +1,9 @@
+#!/usr/bin/env node
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import dotenv from 'dotenv';
 import { GitLabAdapter } from './platforms/gitlab.js';
 import { registerGitLabTools } from './tools/gitlab.js';
 import { registerReviewPrompts } from './prompts/review.js';
-dotenv.config();
 const GITLAB_TOKEN = process.env.GITLAB_TOKEN;
 const GITLAB_URL = process.env.GITLAB_URL || 'https://gitlab.com';
 if (!GITLAB_TOKEN) {
