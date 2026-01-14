@@ -73,7 +73,7 @@ Replace `/absolute/path/to/...` with the actual full path to the project directo
   "mcpServers": {
     "code-review": {
       "command": "node",
-      "args": ["/absolute/path/to/code-review-mcp/dist/index.js"],
+      "args": ["/absolute/path/to/mcp-server-code-review/dist/index.js"],
       "env": {
         "GITLAB_TOKEN": "your_token_here",
         "GITHUB_TOKEN": "your_token_here"
