@@ -1,10 +1,10 @@
 {
-  "name": "code-review-mcp",
+  "name": "mcp-server-code-review",
   "version": "1.0.0",
   "description": "",
   "type": "module",
   "bin": {
-    "code-review-mcp": "./dist/index.js"
+    "mcp-server-code-review": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc",

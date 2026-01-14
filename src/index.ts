@@ -14,7 +14,7 @@ if (!adapters.gitlab && !adapters.github) {
 }
 
 const server = new McpServer({
-  name: 'code-review-mcp',
+  name: 'mcp-server-code-review',
   version: '1.0.0',
 });
 

@@ -19,14 +19,14 @@ You can use this MCP server in two ways:
 ### Option A: Global Installation (Recommended)
 Install the package globally via npm:
 ```bash
-npm install -g code-review-mcp
+npm install -g mcp-server-code-review
 ```
 
 ### Option B: Clone & Build (For Development)
 Clone the repository and build it locally:
 ```bash
-git clone <your-repo-url> code-review-mcp
-cd code-review-mcp
+git clone <your-repo-url> mcp-server-code-review
+cd mcp-server-code-review
 npm install
 npm run build
 ```
@@ -56,7 +56,7 @@ Add the following to your `claude_desktop_config.json` file.
 {
   "mcpServers": {
     "code-review": {
-      "command": "code-review-mcp",
+      "command": "mcp-server-code-review",
       "env": {
         "GITLAB_TOKEN": "your_token_here",
         "GITHUB_TOKEN": "your_token_here"
