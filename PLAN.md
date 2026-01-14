@@ -35,6 +35,14 @@ A Model Context Protocol (MCP) server that acts as a **Read-Only Intelligence Pr
 ### Phase 5: Future Expansion
 - [x] **GitHub Integration:** Implement `GitHubAdapter` (Post-v1).
 
+### Phase 6: Quality Assurance & Test Coverage
+- [x] **Platform Factory Tests:** Verify initialization logic and environment variable handling in `src/platforms/factory.ts`.
+- [x] **Tool Registration Tests:** Ensure `src/tools/*.ts` correctly register tools and schemas with the MCP server.
+- [x] **Prompt Logic Tests:** Validate `src/prompts/review.ts` prompt generation.
+- [x] **Edge Case Handling:** Expand adapter tests to cover error states (missing files, invalid IDs) and filtering logic.
+- [x] **Tool Handler Coverage:** Add tests for `diff`, `read_file`, and `metadata` tool handlers in `src/__tests__/tools.test.ts`.
+- [x] **Platform Edge Cases:** Explicitly test the `catch` blocks in `getProjectMetadata` in platform adapters.
+
 ---
 
 ## Functional Analysis of Tools
