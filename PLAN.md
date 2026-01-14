@@ -33,7 +33,7 @@ A Model Context Protocol (MCP) server that acts as a **Read-Only Intelligence Pr
 - [x] `review_merge_request`: Optimized prompt for MRs.
 
 ### Phase 5: Future Expansion
-- [ ] **GitHub Integration:** Implement `GitHubAdapter` (Post-v1).
+- [x] **GitHub Integration:** Implement `GitHubAdapter` (Post-v1).
 
 ---
 
@@ -42,12 +42,20 @@ A Model Context Protocol (MCP) server that acts as a **Read-Only Intelligence Pr
 ### 1. Authentication
 - `GITLAB_TOKEN`: PAT for GitLab.
 - `GITLAB_URL`: Base URL (default: `https://gitlab.com`).
+- `GITHUB_TOKEN`: PAT for GitHub.
 
-### 2. Capabilities (GitLab API)
+### 2. Capabilities
+#### GitLab API
 - **`gitlab_list_mrs`**
 - **`gitlab_get_mr_details`**
 - **`gitlab_get_mr_diff`**
 - **`gitlab_read_file`**
+
+#### GitHub API
+- **`github_list_prs`**
+- **`github_get_pr_details`**
+- **`github_get_pr_diff`**
+- **`github_read_file`**
 
 
 ## LLM Interaction Flow
