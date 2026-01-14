@@ -14,23 +14,23 @@ A Model Context Protocol (MCP) server that acts as a **Read-Only Intelligence Pr
 ## Development Plan (GitLab First)
 
 ### Phase 1: Foundation & Extensible Architecture
-- [ ] **Project Scaffold:** TypeScript setup with MCP SDK.
-- [ ] **Testing Setup:** Configure Vitest for unit testing.
-- [ ] **Interface Design:** Define a generic `GitPlatform` interface to ensure future support for GitHub/Bitbucket.
-- [ ] **GitLab Implementation:** Create the `GitLabAdapter` implementing the interface with comprehensive unit tests.
-- [ ] **Auth & Configuration:** Support `GITLAB_TOKEN` and `GITLAB_URL` (Env variables) with unit tests.
+- [x] **Project Scaffold:** TypeScript setup with MCP SDK.
+- [x] **Testing Setup:** Configure Vitest for unit testing.
+- [x] **Interface Design:** Define a generic `GitPlatform` interface to ensure future support for GitHub/Bitbucket.
+- [x] **GitLab Implementation:** Create the `GitLabAdapter` implementing the interface with comprehensive unit tests.
+- [x] **Auth & Configuration:** Support `GITLAB_TOKEN` and `GITLAB_URL` (Env variables) with unit tests.
 
 ### Phase 2: The "Review Bundle" (GitLab Focused)
-- [ ] `list_merge_requests`: List open/merged MRs from GitLab.
-- [ ] `get_merge_request_details`: Fetch title, description, and context.
-- [ ] `get_merge_request_diff`: Retrieve the changes via GitLab API.
+- [x] `list_merge_requests`: List open/merged MRs from GitLab.
+- [x] `get_merge_request_details`: Fetch title, description, and context.
+- [x] `get_merge_request_diff`: Retrieve the changes via GitLab API.
 
 ### Phase 3: The "Deep Context"
-- [ ] `read_file_content`: Read files from GitLab repositories.
-- [ ] `get_project_metadata`: Fetch README/manifests from GitLab.
+- [x] `read_file_content`: Read files from GitLab repositories.
+- [x] `get_project_metadata`: Fetch README/manifests from GitLab.
 
 ### Phase 4: Prompt Templates
-- [ ] `review_merge_request`: Optimized prompt for MRs.
+- [x] `review_merge_request`: Optimized prompt for MRs.
 
 ### Phase 5: Future Expansion
 - [ ] **GitHub Integration:** Implement `GitHubAdapter` (Post-v1).
