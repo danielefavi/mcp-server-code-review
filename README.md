@@ -44,20 +44,36 @@ Add the following to your `claude_desktop_config.json`:
 }
 ```
 
-## Development
+## Development & Local Testing
 
-1. **Clone and Install:**
-   ```bash
-   git clone <repo>
-   npm install
-   ```
+### 1. Setup
+```bash
+git clone <repo>
+npm install
+npm run build
+```
 
-2. **Build:**
+### 2. Run Tests
+```bash
+npm test            # Run unit tests
+npm run test:coverage # Run tests with coverage
+```
+
+### 3. Test with MCP Inspector
+The easiest way to debug and test the server capabilities locally is using the MCP Inspector.
+
+1. Build the project:
    ```bash
    npm run build
    ```
-
-3. **Test:**
+2. Run the inspector (passing your token inline):
    ```bash
-   npm test
+   GITLAB_TOKEN=your_token_here npx @modelcontextprotocol/inspector node dist/index.js
    ```
+3. Open the provided URL (usually `http://localhost:5173`) in your browser to interactively call tools like `gitlab_list_mrs`.
+
+### 4. Run Directly
+To run the server process directly (e.g., to verify startup logs):
+```bash
+GITLAB_TOKEN=your_token_here npm start
+```
