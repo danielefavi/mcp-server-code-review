@@ -1,11 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.GitLabAdapter = void 0;
-const rest_1 = require("@gitbeaker/rest");
-class GitLabAdapter {
+import { Gitlab } from '@gitbeaker/rest';
+export class GitLabAdapter {
     client;
     constructor(token, baseUrl) {
-        this.client = new rest_1.Gitlab({
+        this.client = new Gitlab({
             host: baseUrl || 'https://gitlab.com',
             token,
         });
@@ -75,4 +72,3 @@ class GitLabAdapter {
         return { readme, manifest };
     }
 }
-exports.GitLabAdapter = GitLabAdapter;

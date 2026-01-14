@@ -1,11 +1,5 @@
-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import {
-  CallToolRequestSchema,
-  ListToolsRequestSchema,
-  ListPromptsRequestSchema,
-  GetPromptRequestSchema,
-} from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 import dotenv from 'dotenv';
 import { GitLabAdapter } from './platforms/gitlab.js';
@@ -22,183 +16,104 @@ if (!GITLAB_TOKEN) {
 
 const gitlab = new GitLabAdapter(GITLAB_TOKEN, GITLAB_URL);
 
-const server = new Server(
+const server = new McpServer({
+  name: 'code-review-mcp',
+  version: '1.0.0',
+});
+
+// Register Tools
+server.registerTool(
+  'gitlab_list_mrs',
   {
-    name: 'code-review-mcp',
-    version: '1.0.0',
-  },
-  {
-    capabilities: {
-      tools: {},
-      prompts: {},
+    description: 'List merge requests for a given GitLab project',
+    inputSchema: {
+      repoId: z.string().describe('Project ID or URL-encoded path'),
+      status: z.string().optional().describe('Filter by state: opened, closed, merged').default('opened'),
     },
+  },
+  async ({ repoId, status }) => {
+    const mrs = await gitlab.listMergeRequests(repoId, status);
+    return { content: [{ type: 'text', text: JSON.stringify(mrs, null, 2) }] };
   }
 );
 
-// Define Tools
-server.setRequestHandler(ListToolsRequestSchema, async () => {
-  return {
-    tools: [
-      {
-        name: 'gitlab_list_mrs',
-        description: 'List merge requests for a given GitLab project',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            repoId: { type: 'string', description: 'Project ID or URL-encoded path' },
-            status: { type: 'string', description: 'Filter by state: opened, closed, merged', default: 'opened' },
-          },
-          required: ['repoId'],
-        },
-      },
-      {
-        name: 'gitlab_get_mr_details',
-        description: 'Get details of a specific merge request',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            repoId: { type: 'string', description: 'Project ID or URL-encoded path' },
-            mrId: { type: 'string', description: 'Internal ID of the merge request' },
-          },
-          required: ['repoId', 'mrId'],
-        },
-      },
-      {
-        name: 'gitlab_get_mr_diff',
-        description: 'Get the diff of a specific merge request',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            repoId: { type: 'string', description: 'Project ID or URL-encoded path' },
-            mrId: { type: 'string', description: 'Internal ID of the merge request' },
-          },
-          required: ['repoId', 'mrId'],
-        },
-      },
-      {
-        name: 'gitlab_read_file',
-        description: 'Read the content of a file at a specific ref',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            repoId: { type: 'string', description: 'Project ID or URL-encoded path' },
-            filePath: { type: 'string', description: 'Path to the file' },
-            ref: { type: 'string', description: 'Commit SHA, branch, or tag name', default: 'main' },
-          },
-          required: ['repoId', 'filePath'],
-        },
-      },
-      {
-        name: 'gitlab_get_project_metadata',
-        description: 'Fetch project metadata (README and manifests)',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            repoId: { type: 'string', description: 'Project ID or URL-encoded path' },
-          },
-          required: ['repoId'],
-        },
-      },
-    ],
-  };
-});
-
-// Handle Tool Calls
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
-  const { name, arguments: args } = request.params;
-
-  try {
-    switch (name) {
-      case 'gitlab_list_mrs': {
-        const { repoId, status } = z.object({
-          repoId: z.string(),
-          status: z.string().optional(),
-        }).parse(args);
-        const mrs = await gitlab.listMergeRequests(repoId, status);
-        return { content: [{ type: 'text', text: JSON.stringify(mrs, null, 2) }] };
-      }
-
-      case 'gitlab_get_mr_details': {
-        const { repoId, mrId } = z.object({
-          repoId: z.string(),
-          mrId: z.string(),
-        }).parse(args);
-        const mr = await gitlab.getMergeRequestDetails(repoId, mrId);
-        return { content: [{ type: 'text', text: JSON.stringify(mr, null, 2) }] };
-      }
-
-      case 'gitlab_get_mr_diff': {
-        const { repoId, mrId } = z.object({
-          repoId: z.string(),
-          mrId: z.string(),
-        }).parse(args);
-        const diffs = await gitlab.getMergeRequestDiff(repoId, mrId);
-        return { content: [{ type: 'text', text: JSON.stringify(diffs, null, 2) }] };
-      }
-
-      case 'gitlab_read_file': {
-        const { repoId, filePath, ref } = z.object({
-          repoId: z.string(),
-          filePath: z.string(),
-          ref: z.string().optional(),
-        }).parse(args);
-        const content = await gitlab.readFileContent(repoId, filePath, ref);
-        return { content: [{ type: 'text', text: content }] };
-      }
-
-      case 'gitlab_get_project_metadata': {
-        const { repoId } = z.object({
-          repoId: z.string(),
-        }).parse(args);
-        const metadata = await gitlab.getProjectMetadata(repoId);
-        return { content: [{ type: 'text', text: JSON.stringify(metadata, null, 2) }] };
-      }
-
-      default:
-        throw new Error(`Tool not found: ${name}`);
-    }
-  } catch (error: any) {
-    return {
-      isError: true,
-      content: [{ type: 'text', text: error.message || 'Unknown error' }],
-    };
+server.registerTool(
+  'gitlab_get_mr_details',
+  {
+    description: 'Get details of a specific merge request',
+    inputSchema: {
+      repoId: z.string().describe('Project ID or URL-encoded path'),
+      mrId: z.string().describe('Internal ID of the merge request'),
+    },
+  },
+  async ({ repoId, mrId }) => {
+    const mr = await gitlab.getMergeRequestDetails(repoId, mrId);
+    return { content: [{ type: 'text', text: JSON.stringify(mr, null, 2) }] };
   }
-});
+);
 
-// Define Prompts
-server.setRequestHandler(ListPromptsRequestSchema, async () => {
-  return {
-    prompts: [
+server.registerTool(
+  'gitlab_get_mr_diff',
+  {
+    description: 'Get the diff of a specific merge request',
+    inputSchema: {
+      repoId: z.string().describe('Project ID or URL-encoded path'),
+      mrId: z.string().describe('Internal ID of the merge request'),
+    },
+  },
+  async ({ repoId, mrId }) => {
+    const diffs = await gitlab.getMergeRequestDiff(repoId, mrId);
+    return { content: [{ type: 'text', text: JSON.stringify(diffs, null, 2) }] };
+  }
+);
+
+server.registerTool(
+  'gitlab_read_file',
+  {
+    description: 'Read the content of a file at a specific ref',
+    inputSchema: {
+      repoId: z.string().describe('Project ID or URL-encoded path'),
+      filePath: z.string().describe('Path to the file'),
+      ref: z.string().optional().describe('Commit SHA, branch, or tag name').default('main'),
+    },
+  },
+  async ({ repoId, filePath, ref }) => {
+    const content = await gitlab.readFileContent(repoId, filePath, ref);
+    return { content: [{ type: 'text', text: content }] };
+  }
+);
+
+server.registerTool(
+  'gitlab_get_project_metadata',
+  {
+    description: 'Fetch project metadata (README and manifests)',
+    inputSchema: {
+      repoId: z.string().describe('Project ID or URL-encoded path'),
+    },
+  },
+  async ({ repoId }) => {
+    const metadata = await gitlab.getProjectMetadata(repoId);
+    return { content: [{ type: 'text', text: JSON.stringify(metadata, null, 2) }] };
+  }
+);
+
+// Register Prompts
+server.registerPrompt(
+  'review_merge_request',
+  {
+    description: 'Guided code review for a GitLab Merge Request',
+    argsSchema: {
+      repoId: z.string().describe('Project ID or path'),
+      mrId: z.string().describe('Merge Request ID'),
+    },
+  },
+  ({ repoId, mrId }) => ({
+    messages: [
       {
-        name: 'review_merge_request',
-        description: 'Guided code review for a GitLab Merge Request',
-        arguments: [
-          { name: 'repoId', description: 'Project ID or path', required: true },
-          { name: 'mrId', description: 'Merge Request ID', required: true },
-        ],
-      },
-    ],
-  };
-});
-
-// Handle Prompts
-server.setRequestHandler(GetPromptRequestSchema, async (request) => {
-  const { name, arguments: args } = request.params;
-
-  if (name === 'review_merge_request') {
-    const { repoId, mrId } = z.object({
-      repoId: z.string(),
-      mrId: z.string(),
-    }).parse(args);
-
-    return {
-      description: 'Principal Engineer Review',
-      messages: [
-        {
-          role: 'user',
-          content: {
-            type: 'text',
-            text: `You are a Principal Software Engineer. Your goal is to review GitLab Merge Request ${mrId} in project ${repoId}.
+        role: 'user',
+        content: {
+          type: 'text',
+          text: `You are a Principal Software Engineer. Your goal is to review GitLab Merge Request ${mrId} in project ${repoId}.
 
 Please follow these steps:
 1. Call gitlab_get_project_metadata to understand the tech stack and guidelines.
@@ -212,14 +127,11 @@ Review Guidelines:
 - Verify the changes against the user-provided requirements.
 
 Provide your feedback structured as: Summary, Critical Issues, Suggestions, and Nitpicks.`,
-          },
         },
-      ],
-    };
-  }
-
-  throw new Error(`Prompt not found: ${name}`);
-});
+      },
+    ],
+  })
+);
 
 // Start Server
 async function main() {
