@@ -68,7 +68,7 @@ export class GitLabAdapter implements GitPlatform {
       // Ignore if not found
     }
 
-    const manifestFiles = ['package.json', 'go.mod', 'Cargo.toml', 'requirements.txt', 'pom.xml'];
+    const manifestFiles = ['package.json', 'go.mod', 'Cargo.toml', 'requirements.txt', 'pom.xml', 'composer.json'];
     for (const file of manifestFiles) {
       try {
         manifest = await this.readFileContent(repoId, file);
