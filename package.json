@@ -15,7 +15,13 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "repository": "git://github.com/danielefavi/mcp-server-code-review.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danielefavi/mcp-server-code-review.git"
+  },
+  "files": [
+    "dist"
+  ],
   "dependencies": {
     "@gitbeaker/rest": "^43.8.0",
     "@modelcontextprotocol/sdk": "^1.25.2",
