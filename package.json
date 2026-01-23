@@ -10,7 +10,9 @@
     "build": "tsc",
     "start": "tsx src/index.ts",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\""
   },
   "keywords": [],
   "author": "",
@@ -31,6 +33,7 @@
   "devDependencies": {
     "@types/node": "^25.0.8",
     "@vitest/coverage-v8": "^4.0.17",
+    "prettier": "^3.8.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.17"
