@@ -10,21 +10,21 @@ const mockReposGetReadme = vi.fn();
 
 vi.mock('octokit', () => {
   return {
-    Octokit: vi.fn().mockImplementation(function() {
+    Octokit: vi.fn().mockImplementation(function () {
       return {
         rest: {
           pulls: {
             list: mockPullsList,
             get: mockPullsGet,
-            listFiles: mockPullsListFiles
+            listFiles: mockPullsListFiles,
           },
           repos: {
             getContent: mockReposGetContent,
-            getReadme: mockReposGetReadme
-          }
-        }
+            getReadme: mockReposGetReadme,
+          },
+        },
       };
-    })
+    }),
   };
 });
 
@@ -38,28 +38,52 @@ describe('GitHubAdapter', () => {
     // Default happy path mocks
     mockPullsList.mockResolvedValue({
       data: [
-        { number: 1, title: 'Test PR', body: 'Desc', user: { login: 'user1' }, head: { ref: 'src' }, base: { ref: 'tgt' }, html_url: 'url', merged_at: null }
-      ]
+        {
+          number: 1,
+          title: 'Test PR',
+          body: 'Desc',
+          user: { login: 'user1' },
+          head: { ref: 'src' },
+          base: { ref: 'tgt' },
+          html_url: 'url',
+          merged_at: null,
+        },
+      ],
     });
     mockPullsGet.mockResolvedValue({
-      data: { number: 1, title: 'Test PR', body: 'Desc', user: { login: 'user1' }, head: { ref: 'src' }, base: { ref: 'tgt' }, html_url: 'url' }
+      data: {
+        number: 1,
+        title: 'Test PR',
+        body: 'Desc',
+        user: { login: 'user1' },
+        head: { ref: 'src' },
+        base: { ref: 'tgt' },
+        html_url: 'url',
+      },
     });
     mockPullsListFiles.mockResolvedValue({
       data: [
-        { filename: 'file.ts', previous_filename: undefined, patch: '@@ .. @@', status: 'modified' }
-      ]
+        {
+          filename: 'file.ts',
+          previous_filename: undefined,
+          patch: '@@ .. @@',
+          status: 'modified',
+        },
+      ],
     });
     mockReposGetContent.mockResolvedValue({
-      data: { content: Buffer.from('test content').toString('base64') }
+      data: { content: Buffer.from('test content').toString('base64') },
     });
     mockReposGetReadme.mockResolvedValue({
-      data: { content: Buffer.from('readme api content').toString('base64') }
+      data: { content: Buffer.from('readme api content').toString('base64') },
     });
   });
 
   it('should parse repo ID correctly', async () => {
     await adapter.listMergeRequests('owner/repo');
-    expect(mockPullsList).toHaveBeenCalledWith(expect.objectContaining({ owner: 'owner', repo: 'repo' }));
+    expect(mockPullsList).toHaveBeenCalledWith(
+      expect.objectContaining({ owner: 'owner', repo: 'repo' })
+    );
   });
 
   it('should throw error on invalid repo ID', async () => {
@@ -75,27 +99,27 @@ describe('GitHubAdapter', () => {
   it('should filter merged pull requests', async () => {
     mockPullsList.mockResolvedValue({
       data: [
-        { 
-          number: 1, 
+        {
+          number: 1,
           merged_at: '2023-01-01',
           title: 'Merged PR',
           body: 'Desc',
           user: { login: 'user1' },
           head: { ref: 'src' },
           base: { ref: 'tgt' },
-          html_url: 'url'
+          html_url: 'url',
         },
-        { 
-          number: 2, 
+        {
+          number: 2,
           merged_at: null,
           title: 'Closed Unmerged PR',
           body: 'Desc',
           user: { login: 'user1' },
           head: { ref: 'src' },
           base: { ref: 'tgt' },
-          html_url: 'url'
-        }
-      ]
+          html_url: 'url',
+        },
+      ],
     });
 
     const prs = await adapter.listMergeRequests('owner/repo', 'merged');
@@ -105,13 +129,13 @@ describe('GitHubAdapter', () => {
   });
 
   it('should list closed pull requests', async () => {
-     await adapter.listMergeRequests('owner/repo', 'closed');
-     expect(mockPullsList).toHaveBeenCalledWith(expect.objectContaining({ state: 'closed' }));
+    await adapter.listMergeRequests('owner/repo', 'closed');
+    expect(mockPullsList).toHaveBeenCalledWith(expect.objectContaining({ state: 'closed' }));
   });
-  
+
   it('should list all pull requests', async () => {
-     await adapter.listMergeRequests('owner/repo', 'all');
-     expect(mockPullsList).toHaveBeenCalledWith(expect.objectContaining({ state: 'all' }));
+    await adapter.listMergeRequests('owner/repo', 'all');
+    expect(mockPullsList).toHaveBeenCalledWith(expect.objectContaining({ state: 'all' }));
   });
 
   it('should get pull request details', async () => {
@@ -131,14 +155,19 @@ describe('GitHubAdapter', () => {
 
   it('should throw error if file response is array (directory)', async () => {
     mockReposGetContent.mockResolvedValue({ data: [] });
-    await expect(adapter.readFileContent('owner/repo', 'dir')).rejects.toThrow('File not found or is a directory');
+    await expect(adapter.readFileContent('owner/repo', 'dir')).rejects.toThrow(
+      'File not found or is a directory'
+    );
   });
 
   it('should get project metadata via direct file access', async () => {
     // Mock direct success
     mockReposGetContent.mockImplementation(({ path }) => {
-        if (path === 'README.md') return Promise.resolve({ data: { content: Buffer.from('readme direct').toString('base64') } });
-        return Promise.reject(new Error('Not found'));
+      if (path === 'README.md')
+        return Promise.resolve({
+          data: { content: Buffer.from('readme direct').toString('base64') },
+        });
+      return Promise.reject(new Error('Not found'));
     });
 
     const metadata = await adapter.getProjectMetadata('owner/repo');
@@ -153,12 +182,14 @@ describe('GitHubAdapter', () => {
     const metadata = await adapter.getProjectMetadata('owner/repo');
     expect(metadata.readme).toBe('readme api content');
   });
-  
+
   it('should continue to next manifest if first fails', async () => {
     mockReposGetContent.mockImplementation(({ path }) => {
-      if (path === 'README.md') return Promise.resolve({ data: { content: Buffer.from('readme').toString('base64') } });
+      if (path === 'README.md')
+        return Promise.resolve({ data: { content: Buffer.from('readme').toString('base64') } });
       if (path === 'package.json') return Promise.reject(new Error('Not found'));
-      if (path === 'go.mod') return Promise.resolve({ data: { content: Buffer.from('go module').toString('base64') } });
+      if (path === 'go.mod')
+        return Promise.resolve({ data: { content: Buffer.from('go module').toString('base64') } });
       return Promise.reject(new Error('Not found'));
     });
 
@@ -167,11 +198,11 @@ describe('GitHubAdapter', () => {
   });
 
   it('should handle missing metadata gracefully', async () => {
-      mockReposGetContent.mockRejectedValue(new Error('Not found'));
-      mockReposGetReadme.mockRejectedValue(new Error('Not found'));
-      
-      const metadata = await adapter.getProjectMetadata('owner/repo');
-      expect(metadata.readme).toBeUndefined();
-      expect(metadata.manifest).toBeUndefined();
+    mockReposGetContent.mockRejectedValue(new Error('Not found'));
+    mockReposGetReadme.mockRejectedValue(new Error('Not found'));
+
+    const metadata = await adapter.getProjectMetadata('owner/repo');
+    expect(metadata.readme).toBeUndefined();
+    expect(metadata.manifest).toBeUndefined();
   });
 });

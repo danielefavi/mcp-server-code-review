@@ -5,11 +5,11 @@ import { GitHubAdapter } from '../platforms/github.js';
 
 // Mock the adapter classes
 vi.mock('../platforms/gitlab.js', () => ({
-  GitLabAdapter: vi.fn()
+  GitLabAdapter: vi.fn(),
 }));
 
 vi.mock('../platforms/github.js', () => ({
-  GitHubAdapter: vi.fn()
+  GitHubAdapter: vi.fn(),
 }));
 
 describe('PlatformFactory', () => {

@@ -20,7 +20,7 @@ export default class PromptBuilder {
     return this;
   }
 
-  public addParagraph(text: string, newlines: string = "\n\n") {
+  public addParagraph(text: string, newlines: string = '\n\n') {
     this.prompt += newlines + text;
     return this;
   }

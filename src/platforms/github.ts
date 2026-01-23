@@ -36,15 +36,18 @@ export class GitHubAdapter implements GitPlatform {
    * @param status The state to filter by ('opened', 'closed', 'merged', 'all'). Defaults to 'opened'.
    * @returns A list of simplified pull request details.
    */
-  async listMergeRequests(repoId: string, status: string = 'opened'): Promise<MergeRequestDetails[]> {
+  async listMergeRequests(
+    repoId: string,
+    status: string = 'opened'
+  ): Promise<MergeRequestDetails[]> {
     const { owner, repo } = this.parseRepoId(repoId);
-    
+
     // GitHub uses 'open', 'closed', 'all'. Map 'opened' to 'open', 'merged' is a subset of closed but we can filter.
     let state: 'open' | 'closed' | 'all' = 'open';
     if (status === 'closed' || status === 'merged') {
-        state = 'closed';
+      state = 'closed';
     } else if (status === 'all') {
-        state = 'all';
+      state = 'all';
     }
 
     const { data: prs } = await this.client.rest.pulls.list({
@@ -55,7 +58,7 @@ export class GitHubAdapter implements GitPlatform {
 
     let filteredPrs = prs;
     if (status === 'merged') {
-        filteredPrs = prs.filter(pr => pr.merged_at !== null);
+      filteredPrs = prs.filter((pr) => pr.merged_at !== null);
     }
 
     return filteredPrs.map((pr) => ({
@@ -154,19 +157,19 @@ export class GitHubAdapter implements GitPlatform {
       // GitHub has a dedicated endpoint for README but readFileContent is consistent
       readme = await this.readFileContent(repoId, 'README.md');
     } catch (e) {
-        // Try lowercase or other common names if needed, but strict 'README.md' is common standard.
-        // GitHub API for getReadme could be robust but let's stick to readFileContent for simplicity first.
-        try {
-             // Fallback to API specific readme if direct file fails (e.g. different casing)
-             const { owner, repo } = this.parseRepoId(repoId);
-             const { data: readmeData } = await this.client.rest.repos.getReadme({
-                 owner, 
-                 repo
-             });
-             readme = Buffer.from(readmeData.content, 'base64').toString('utf-8');
-        } catch (ex) {
-            // Ignore
-        }
+      // Try lowercase or other common names if needed, but strict 'README.md' is common standard.
+      // GitHub API for getReadme could be robust but let's stick to readFileContent for simplicity first.
+      try {
+        // Fallback to API specific readme if direct file fails (e.g. different casing)
+        const { owner, repo } = this.parseRepoId(repoId);
+        const { data: readmeData } = await this.client.rest.repos.getReadme({
+          owner,
+          repo,
+        });
+        readme = Buffer.from(readmeData.content, 'base64').toString('utf-8');
+      } catch (ex) {
+        // Ignore
+      }
     }
 
     const manifestFiles = ['package.json', 'go.mod', 'Cargo.toml', 'requirements.txt', 'pom.xml'];

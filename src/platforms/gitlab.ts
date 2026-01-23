@@ -26,7 +26,10 @@ export class GitLabAdapter implements GitPlatform {
    * @param status The state to filter by ('opened', 'closed', 'merged'). Defaults to 'opened'.
    * @returns A list of simplified merge request details.
    */
-  async listMergeRequests(repoId: string, status: string = 'opened'): Promise<MergeRequestDetails[]> {
+  async listMergeRequests(
+    repoId: string,
+    status: string = 'opened'
+  ): Promise<MergeRequestDetails[]> {
     const mrs = await this.client.MergeRequests.all({
       projectId: repoId,
       state: status,
@@ -107,7 +110,14 @@ export class GitLabAdapter implements GitPlatform {
       // Ignore if not found
     }
 
-    const manifestFiles = ['package.json', 'go.mod', 'Cargo.toml', 'requirements.txt', 'pom.xml', 'composer.json'];
+    const manifestFiles = [
+      'package.json',
+      'go.mod',
+      'Cargo.toml',
+      'requirements.txt',
+      'pom.xml',
+      'composer.json',
+    ];
     for (const file of manifestFiles) {
       try {
         manifest = await this.readFileContent(repoId, file);
