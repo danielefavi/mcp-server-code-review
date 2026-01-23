@@ -11,8 +11,10 @@ import { codeReviewGuidelines, githubTemplate, gitlabTemplate } from './constant
  * - review_pull_request: A guided prompt for reviewing GitHub pull requests.
  *
  * @param server The MCP server instance.
+ * @param customGuidelines Optional custom code review guidelines. If not provided, uses default guidelines.
  */
-export function registerReviewPrompts(server: McpServer) {
+export function registerReviewPrompts(server: McpServer, customGuidelines?: string) {
+  const guidelines = customGuidelines ?? codeReviewGuidelines;
   server.registerPrompt(
     'review_merge_request',
     {
@@ -31,7 +33,7 @@ export function registerReviewPrompts(server: McpServer) {
             text: new PromptBuilder(gitlabTemplate)
               .replaceWildCard('{{MR_ID}}', mrId)
               .replaceWildCard('{{REPO_ID}}', repoId)
-              .addParagraph(codeReviewGuidelines) // TODO: let's give the user the option to set the guidelines from config
+              .addParagraph(guidelines)
               .get(),
           },
         },
@@ -57,7 +59,7 @@ export function registerReviewPrompts(server: McpServer) {
             text: new PromptBuilder(githubTemplate)
               .replaceWildCard('{{PR_ID}}', prId)
               .replaceWildCard('{{REPO_ID}}', repoId)
-              .addParagraph(codeReviewGuidelines) // TODO: let's give the user the option to set the guidelines from config
+              .addParagraph(guidelines)
               .get(),
           },
         },

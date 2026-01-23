@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { PlatformFactory } from '../platforms/factory.js';
 import { GitLabAdapter } from '../platforms/gitlab.js';
 import { GitHubAdapter } from '../platforms/github.js';
+import { readFileSync } from 'fs';
 
 // Mock the adapter classes
 vi.mock('../platforms/gitlab.js', () => ({
@@ -10,6 +11,10 @@ vi.mock('../platforms/gitlab.js', () => ({
 
 vi.mock('../platforms/github.js', () => ({
   GitHubAdapter: vi.fn(),
+}));
+
+vi.mock('fs', () => ({
+  readFileSync: vi.fn(),
 }));
 
 describe('PlatformFactory', () => {
@@ -79,5 +84,68 @@ describe('PlatformFactory', () => {
 
     expect(adapters.gitlab).toBeUndefined();
     expect(adapters.github).toBeUndefined();
+  });
+
+  describe('loadCodeReviewGuidelines', () => {
+    beforeEach(() => {
+      delete process.env.CODE_REVIEW_GUIDELINES_FILE;
+      delete process.env.CODE_REVIEW_GUIDELINES;
+    });
+
+    it('should return undefined when no guidelines are configured', () => {
+      const result = PlatformFactory.loadCodeReviewGuidelines();
+      expect(result).toBeUndefined();
+    });
+
+    it('should return guidelines from CODE_REVIEW_GUIDELINES env var', () => {
+      process.env.CODE_REVIEW_GUIDELINES = 'Custom guidelines text';
+
+      const result = PlatformFactory.loadCodeReviewGuidelines();
+
+      expect(result).toBe('Custom guidelines text');
+    });
+
+    it('should read guidelines from file when CODE_REVIEW_GUIDELINES_FILE is set', () => {
+      process.env.CODE_REVIEW_GUIDELINES_FILE = '/path/to/guidelines.txt';
+      vi.mocked(readFileSync).mockReturnValue('Guidelines from file');
+
+      const result = PlatformFactory.loadCodeReviewGuidelines();
+
+      expect(readFileSync).toHaveBeenCalledWith('/path/to/guidelines.txt', 'utf-8');
+      expect(result).toBe('Guidelines from file');
+    });
+
+    it('should prefer file over direct text when both are set', () => {
+      process.env.CODE_REVIEW_GUIDELINES_FILE = '/path/to/guidelines.txt';
+      process.env.CODE_REVIEW_GUIDELINES = 'Direct text';
+      vi.mocked(readFileSync).mockReturnValue('Guidelines from file');
+
+      const result = PlatformFactory.loadCodeReviewGuidelines();
+
+      expect(result).toBe('Guidelines from file');
+    });
+
+    it('should fall back to direct text when file read fails', () => {
+      process.env.CODE_REVIEW_GUIDELINES_FILE = '/invalid/path.txt';
+      process.env.CODE_REVIEW_GUIDELINES = 'Fallback text';
+      vi.mocked(readFileSync).mockImplementation(() => {
+        throw new Error('File not found');
+      });
+
+      const result = PlatformFactory.loadCodeReviewGuidelines();
+
+      expect(result).toBe('Fallback text');
+    });
+
+    it('should return undefined when file read fails and no fallback text', () => {
+      process.env.CODE_REVIEW_GUIDELINES_FILE = '/invalid/path.txt';
+      vi.mocked(readFileSync).mockImplementation(() => {
+        throw new Error('File not found');
+      });
+
+      const result = PlatformFactory.loadCodeReviewGuidelines();
+
+      expect(result).toBeUndefined();
+    });
   });
 });

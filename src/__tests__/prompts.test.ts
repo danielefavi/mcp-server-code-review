@@ -42,4 +42,36 @@ describe('Prompt Registration', () => {
     expect(result.messages[0].content.text).toContain('review GitHub Pull Request 456');
     expect(result.messages[0].content.text).toContain('github_get_pr_details');
   });
+
+  it('should use custom guidelines when provided for merge request', () => {
+    const customGuidelines = 'My custom review guidelines';
+    registerReviewPrompts(mockServer, customGuidelines);
+
+    const handler = mockServer.registerPrompt.mock.calls.find(
+      (call: any) => call[0] === 'review_merge_request'
+    )[2];
+    const result = handler({ repoId: 'my-project', mrId: '123' });
+    expect(result.messages[0].content.text).toContain(customGuidelines);
+  });
+
+  it('should use custom guidelines when provided for pull request', () => {
+    const customGuidelines = 'My custom review guidelines';
+    registerReviewPrompts(mockServer, customGuidelines);
+
+    const handler = mockServer.registerPrompt.mock.calls.find(
+      (call: any) => call[0] === 'review_pull_request'
+    )[2];
+    const result = handler({ repoId: 'owner/repo', prId: '456' });
+    expect(result.messages[0].content.text).toContain(customGuidelines);
+  });
+
+  it('should use default guidelines when custom guidelines not provided', () => {
+    registerReviewPrompts(mockServer);
+
+    const handler = mockServer.registerPrompt.mock.calls.find(
+      (call: any) => call[0] === 'review_merge_request'
+    )[2];
+    const result = handler({ repoId: 'my-project', mrId: '123' });
+    expect(result.messages[0].content.text).toContain('Code Review Guidelines:');
+  });
 });

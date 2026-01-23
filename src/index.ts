@@ -30,7 +30,8 @@ if (adapters.github) {
   console.error('GitHub integration enabled.');
 }
 
-registerReviewPrompts(server);
+const customGuidelines = PlatformFactory.loadCodeReviewGuidelines();
+registerReviewPrompts(server, customGuidelines);
 
 // Start Server
 async function main() {

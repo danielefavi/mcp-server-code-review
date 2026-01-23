@@ -1,3 +1,4 @@
+import { readFileSync } from 'fs';
 import { GitLabAdapter } from './gitlab.js';
 import { GitHubAdapter } from './github.js';
 
@@ -59,5 +60,29 @@ export class PlatformFactory {
     }
 
     return adapters;
+  }
+
+  /**
+   * Loads custom code review guidelines from environment variables.
+   * Checks CODE_REVIEW_GUIDELINES_FILE first (file path), then CODE_REVIEW_GUIDELINES (direct text).
+   * @returns The custom guidelines string, or undefined if not configured.
+   */
+  static loadCodeReviewGuidelines(): string | undefined {
+    const guidelinesFile = process.env.CODE_REVIEW_GUIDELINES_FILE;
+    const guidelinesText = process.env.CODE_REVIEW_GUIDELINES;
+
+    if (guidelinesFile) {
+      try {
+        return readFileSync(guidelinesFile, 'utf-8');
+      } catch (error) {
+        console.error(`Warning: Could not read guidelines file "${guidelinesFile}":`, error);
+      }
+    }
+
+    if (guidelinesText) {
+      return guidelinesText;
+    }
+
+    return undefined;
   }
 }
