@@ -1,6 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
-import { getMergeRequestReviewPrompt, getPullRequestReviewPrompt } from './prompts.js';
+import PromptBuilder from './prompt-builder.js';
+import { codeReviewGuidelines, githubTemplate, gitlabTemplate } from './constants.js';
 
 /**
  * Registers prompt templates for code reviews with the MCP server.
@@ -27,7 +28,11 @@ export function registerReviewPrompts(server: McpServer) {
           role: 'user',
           content: {
             type: 'text',
-            text: getMergeRequestReviewPrompt(repoId, mrId),
+            text: new PromptBuilder(gitlabTemplate)
+              .replaceWildCard('{{MR_ID}}', mrId)
+              .replaceWildCard('{{REPO_ID}}', repoId)
+              .addParagraph(codeReviewGuidelines) // TODO: let's give the user the option to set the guidelines from config
+              .get(),
           },
         },
       ],
@@ -49,7 +54,11 @@ export function registerReviewPrompts(server: McpServer) {
           role: 'user',
           content: {
             type: 'text',
-            text: getPullRequestReviewPrompt(repoId, prId),
+            text: new PromptBuilder(githubTemplate)
+              .replaceWildCard('{{PR_ID}}', prId)
+              .replaceWildCard('{{REPO_ID}}', repoId)
+              .addParagraph(codeReviewGuidelines) // TODO: let's give the user the option to set the guidelines from config
+              .get(),
           },
         },
       ],
