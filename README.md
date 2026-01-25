@@ -9,8 +9,6 @@ An MCP server designed to act as a **Read-Only Intelligence Provider** for code 
 - **Get Details:** Understand the description, author, and intent.
 - **Get Diff:** Retrieve and analyze code changes.
 - **Read Files:** Fetch specific files from repositories at any ref (commit, branch, tag).
-- **Deep Context:** Fetch `README.md` and manifest files (e.g., `package.json`, `go.mod`, `Cargo.toml`) to understand the tech stack.
-- **Guided Review Prompts:** Built-in prompts that guide the LLM to act as a Principal Engineer.
 - **Custom Guidelines:** Configure your own code review guidelines.
 
 ---
@@ -153,6 +151,37 @@ Add the following to your `claude_desktop_config.json` file.
 
 - **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
 - **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+- **Linux:** `~/.config/Claude/claude_desktop_config.json`
+
+### Claude Code (CLI) Configuration
+
+Add the following to your `settings.json` file for global configuration, or `.claude/settings.local.json` in your project directory for project-specific configuration.
+
+**Path locations (global):**
+
+- **macOS:** `~/.claude/settings.json`
+- **Windows:** `%USERPROFILE%\.claude\settings.json`
+- **Linux:** `~/.claude/settings.json`
+
+### Gemini Configuration
+
+Add the following to your `settings.json` file.
+
+**Path locations:**
+
+- **macOS:** `~/.gemini/settings.json`
+- **Windows:** `%USERPROFILE%\.gemini\settings.json`
+- **Linux:** `~/.gemini/settings.json`
+
+### ChatGPT Configuration
+
+Add the following to your `mcp.json` file.
+
+**Path locations:**
+
+- **macOS:** `~/.chatgpt/mcp.json`
+- **Windows:** `%USERPROFILE%\.chatgpt\mcp.json`
+- **Linux:** `~/.chatgpt/mcp.json`
 
 ---
 
