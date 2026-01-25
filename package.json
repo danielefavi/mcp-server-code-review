@@ -1,7 +1,7 @@
 {
   "name": "mcp-server-code-review",
-  "version": "1.1.1",
-  "description": "",
+  "version": "1.1.2",
+  "description": "MCP server for code reviews - connects LLMs to GitHub and GitLab to analyze Merge/Pull Requests and provide expert feedback",
   "type": "module",
   "bin": {
     "mcp-server-code-review": "./dist/index.js"
@@ -14,8 +14,19 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\""
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "code-review",
+    "github",
+    "gitlab",
+    "pull-request",
+    "merge-request",
+    "llm",
+    "claude",
+    "gemini"
+  ],
+  "author": "info@danielefavi.com",
   "license": "ISC",
   "repository": {
     "type": "git",
