@@ -56,14 +56,7 @@ The server requires environment variables for authentication. You should add the
 
 > **Note:** At least one of `GITLAB_TOKEN` or `GITHUB_TOKEN` must be provided. If `CODE_REVIEW_GUIDELINES_FILE` is set, it takes precedence over `CODE_REVIEW_GUIDELINES`.
 
-### Claude Desktop Configuration
-
-Add the following to your `claude_desktop_config.json` file.
-
-**Path locations:**
-
-- **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+### MCP Server Configuration
 
 #### Using Global Installation
 
@@ -151,6 +144,15 @@ Or use inline guidelines:
   }
 }
 ```
+
+### Claude Desktop Configuration
+
+Add the following to your `claude_desktop_config.json` file.
+
+**Path locations:**
+
+- **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
 
 ---
 
